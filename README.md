@@ -10,19 +10,19 @@ Next.js (App Router) UI + NestJS/Better Auth API + PostgreSQL + реальная
 
 Нужны Node.js 22+, pnpm 10+, Docker и SMTP с реальными реквизитами.
 
-1. \`cp .env.example .env\` — заполнить все значения. \`BETTER_AUTH_SECRET\` сгенерировать криптографически случайным: \`openssl rand -base64 48\`. **Не использовать пример секрета в реальном окружении.**
-2. \`docker compose up -d postgres\`
-3. \`pnpm install\`
-4. \`pnpm db:migrate\` — применить схему Better Auth в PostgreSQL. Это отдельная явная операция; приложение не создаёт таблицы при каждом старте.
-5. \`pnpm dev\` — UI: http://localhost:3000/sign-in, API: http://localhost:4000/api/auth, health: http://localhost:4000/v1/health.
+1. `cp .env.example .env` — заполнить все значения. `BETTER_AUTH_SECRET` сгенерировать криптографически случайным: `openssl rand -base64 48`. **Не использовать пример секрета в реальном окружении.**
+2. `docker compose up -d postgres`
+3. `pnpm install`
+4. `pnpm db:migrate` — применить схему Better Auth в PostgreSQL. Это отдельная явная операция; приложение не создаёт таблицы при каждом старте.
+5. `pnpm dev` — UI: http://localhost:3000/sign-in, API: http://localhost:4000/api/auth, health: http://localhost:4000/v1/health.
 
 Порт PostgreSQL 5433 на localhost выбран, чтобы не конфликтовать с другими проектами, использующими 5432. Для production БД, URL и SMTP задаются в secret manager, нужна защита HTTPS и регулярные backup/restore.
 
 ### Структура и проверка
 
-- \`apps/api\`: NestJS/Express, Better Auth (только email/password), PostgreSQL и SMTP.
-- \`apps/web\`: интерфейс Vimla, оригинальный \`VimlaMark\`, next-intl (ru/en/zh-CN/ja/sv-SE), next-themes.
-- \`pnpm lint\`, \`pnpm typecheck\`, \`pnpm test\`, \`pnpm build\`, \`pnpm e2e\`. Не считать успешными, пока реально не выполнены.
+- `apps/api`: NestJS/Express, Better Auth (только email/password), PostgreSQL и SMTP.
+- `apps/web`: интерфейс Vimla, оригинальный `VimlaMark`, next-intl (ru/en/zh-CN/ja/sv-SE), next-themes.
+- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm e2e`. Не считать успешными, пока реально не выполнены.
 - В CI письма отправляются в **изолированный Mailpit**, который используется только для автоматизированных тестов, а не в пользовательском runtime.
 
 **Ручная приёмка обязательна:** до ревью дизайн и flow не считаются окончательно одобренными, нельзя сливать Draft PR в main. Действия и состояния пользовательского интерфейса опираются на настоящий API, нет фальшивых сессий или аккаунтов.
