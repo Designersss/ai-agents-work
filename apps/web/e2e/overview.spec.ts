@@ -11,7 +11,7 @@ test("тёмный desktop Overview: 7/30 дней, личный и корпор
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "Обзор" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Обзор", exact: true })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Основные разделы" })).toBeVisible();
   await expect(page.getByText("Все данные и статусы на этой странице демонстрационные")).toBeVisible();
   await expect(page.getByRole("button", { name: "7 дней" })).toHaveAttribute("aria-pressed", "true");
@@ -35,7 +35,7 @@ test("мобильный Overview: навигация открывается и 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "Обзор" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Обзор", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Открыть главное меню" })).toBeVisible();
   const bodyWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(bodyWidth).toBeLessThanOrEqual(390);
