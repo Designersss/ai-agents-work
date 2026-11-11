@@ -51,8 +51,8 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   await page.getByRole('button', { name: 'Выйти из аккаунта' }).click();
   await expect(page).toHaveURL(/\/sign-in/);
   await page.getByRole('link', { name: 'Забыли пароль?' }).click();
-  await page.getByLabel('Электронная почта').fill(email);
   await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
+  await page.getByLabel('Электронная почта').fill(email);
   await expect(page.getByLabel('Электронная почта')).toHaveValue(email);
   await page.getByRole('button', { name: 'Отправить ссылку' }).click();
   await expect(page.getByText(/Если аккаунт существует/)).toBeVisible();
