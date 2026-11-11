@@ -50,8 +50,11 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   await expect(page).toHaveURL(/\/sign-in/);
   await page.getByRole('link', { name: 'Забыли пароль?' }).click();
   await page.getByLabel('Электронная почта').fill(email);
+  const resetResponse = page.waitForResponse(response => response.url().includes('/request-password-reset'), { timeout: 30_000 });
   await page.getByRole('button', { name: 'Отправить ссылку' }).click();
-  await expect(page.getByText(/Если аккаунт существует/)).toBeVisible();
+  const httpResult = await resetResponse;
+  console.log('PASSWORD_RESET_STATUS', httpResult.status());
+  await expect(page.getByText(/Если аккаунт существует/), 'Reset response=' + httpResult.status() + '; feedback=' + (await page.locator('.feedback').allTextContents()).join(' | ')).toBeVisible();
 
   const reset = await fetchMailLink(request, email, '/reset-password', verify.id);
   await page.goto(reset.link);
