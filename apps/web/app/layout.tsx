@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { cookies, headers } from 'next/headers';
 import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import { Providers } from '../components/providers';
-import { dictionaries, isLocale, localeFromHeader } from '../lib/i18n';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -13,13 +12,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const cookieStore = await cookies();
-  const saved = cookieStore.get('vimla-locale')?.value;
-  const requestHeaders = await headers();
-  const locale = isLocale(saved) ? saved : localeFromHeader(requestHeaders.get('accept-language'));
+  const locale = await getLocale();
+  const messages = await getMessages();
   return <html lang={locale} suppressHydrationWarning>
     <body>
-      <NextIntlClientProvider locale={locale} messages={dictionaries[locale]}>
+      <NextIntlClientProvider locale={locale} messages={messages}>
         <Providers>{children}</Providers>
       </NextIntlClientProvider>
     </body>
