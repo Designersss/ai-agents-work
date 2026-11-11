@@ -2,7 +2,7 @@ const required = ['DATABASE_URL', 'BETTER_AUTH_SECRET', 'BETTER_AUTH_URL', 'WEB_
 
 export function ensureEnvironment(): void {
   for (const key of required) {
-    if (!process.env[key]) throw new Error(\`Missing required configuration: \${key}\`);
+    if (!process.env[key]) throw new Error(`Missing required configuration: ${key}`);
   }
   const secret = process.env.BETTER_AUTH_SECRET!;
   if (secret.length < 32 || secret.startsWith('CHANGE_ME')) throw new Error('BETTER_AUTH_SECRET must be a generated random secret (>=32 chars)');
