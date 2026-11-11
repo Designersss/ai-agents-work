@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -8,6 +8,10 @@ import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, LoaderCircle, LockK
 import { authClient } from '../lib/auth-client';
 import { validEmail, validName, validPassword, errorKey } from '../lib/validation';
 import { Brand } from './brand-chrome';
+
+const subscribeToHydration = () => () => {};
+const clientHydrated = () => true;
+const serverNotHydrated = () => false;
 
 export type AuthMode = 'sign-in' | 'sign-up' | 'forgot-password' | 'reset-password' | 'verify-email';
 
@@ -43,6 +47,7 @@ function FormField({
 export function AuthPanel({ mode, token, invalidResetLink = false, verified = false }:
   { mode: AuthMode; token?: string; invalidResetLink?: boolean; verified?: boolean }) {
   const t = useTranslations('Auth');
+  const hydrated = useSyncExternalStore(subscribeToHydration, clientHydrated, serverNotHydrated);
   const router = useRouter();
   const { data: session, isPending: checkingSession } = authClient.useSession();
   const [name, setName] = useState('');
@@ -171,7 +176,7 @@ export function AuthPanel({ mode, token, invalidResetLink = false, verified = fa
       <CheckCircle2 size={18} aria-hidden="true"/><span>{success}</span>
     </div>}
 
-    {isForm && <form className="auth-form" onSubmit={event => { void submit(event); }}>
+    {isForm && <form className="auth-form" data-ready={hydrated ? "true" : "false"} onSubmit={event => { void submit(event); }}>
       {mode === 'sign-up' && <FormField id="full-name" label={t('name')} icon="user"
         value={name} setValue={setName} autoComplete="name"/>}
       {mode !== 'reset-password' && <FormField id="email" label={mode === 'verify-email' ? t('resendEmail') : t('email')}
@@ -188,7 +193,7 @@ export function AuthPanel({ mode, token, invalidResetLink = false, verified = fa
         </label>
         <Link href="/forgot-password">{t('forgotPassword')}</Link>
       </div>}
-      <button className="primary-button" type="submit" disabled={pending || ((mode === 'sign-in' || mode === 'sign-up') && checkingSession)}>
+      <button className="primary-button" type="submit" disabled={!hydrated || pending || ((mode === 'sign-in' || mode === 'sign-up') && checkingSession)}>
         {pending ? <><LoaderCircle className="spin" size={18} aria-hidden="true"/>{t(busyLabel)}</> :
           <>{t(submitLabel)} <ArrowRight size={18} aria-hidden="true"/></>}
       </button>
