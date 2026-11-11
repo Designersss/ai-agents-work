@@ -1,0 +1,82 @@
+name: Vimla Auth — CI
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: auth-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-and-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: vimla
+          POSTGRES_USER: vimla
+          POSTGRES_PASSWORD: local_dev_only
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U vimla -d vimla"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+    env:
+      DATABASE_URL: postgresql://vimla:local_dev_only@localhost:5433/vimla
+      BETTER_AUTH_SECRET: vimla_CI_only_never_use_this_in_production_0123456789
+      BETTER_AUTH_URL: http://localhost:4000
+      WEB_ORIGIN: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      PORT: 4000
+      SMTP_HOST: localhost
+      SMTP_PORT: 1025
+      SMTP_FROM: "Vimla CI <no-reply@vimla.test>"
+      SMTP_SECURE: "false"
+      MAILPIT_URL: http://localhost:8025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Prepare local config for CLI
+        run: cp .env.example .env
+      - name: Apply real auth schema to PostgreSQL
+        run: pnpm db:migrate
+      - name: Quality gates
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+          pnpm build
+      - name: Install browser
+        run: pnpm --filter @vimla/web exec playwright install --with-deps chromium
+      - name: Verify real email and database flows
+        run: pnpm e2e
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vimla-auth-playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          if-no-files-found: ignore
