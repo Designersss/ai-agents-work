@@ -48,14 +48,14 @@ export function Preferences() {
   return <div className="preferences">
     <label className="select-wrap" title={t('language')} aria-label={t('language')}>
       <Globe2 aria-hidden="true" size={15} />
-      <select value={locale} disabled={busy} onChange={event => { void changeLocale(event); }}>
+      <select aria-label={t('language')} value={locale} disabled={busy} onChange={event => { void changeLocale(event); }}>
         {locales.map(item => <option key={item} value={item}>{names[item]}</option>)}
       </select>
       <ChevronDown aria-hidden="true" size={14}/>
     </label>
     {mounted && <label className="select-wrap theme-select" title={t('theme')} aria-label={t('theme')}>
       {theme === 'dark' ? <Moon aria-hidden="true" size={15}/> : theme === 'light' ? <Sun aria-hidden="true" size={15}/> : <Monitor aria-hidden="true" size={15}/>}
-      <select value={theme ?? 'system'} onChange={e => setTheme(e.target.value)}>
+      <select aria-label={t('theme')} value={theme ?? 'system'} onChange={e => setTheme(e.target.value)}>
         <option value="system">{t('system')}</option>
         <option value="light">{t('light')}</option>
         <option value="dark">{t('dark')}</option>
