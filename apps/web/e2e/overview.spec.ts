@@ -44,7 +44,7 @@ test("мобильный Overview: навигация открывается и 
   await page.getByRole("button", { name: "Открыть главное меню" }).click();
   await expect(page.getByRole("dialog", { name: "Навигация по AIMock" })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Основные разделы" })).toBeVisible();
-  await page.screenshot({ path: `${screenshotDir}/overview-mobile-menu.png`, fullPage: true });
+  await page.screenshot({ path: `${screenshotDir}/overview-mobile-menu.png`, fullPage: false });
 
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog", { name: "Навигация по AIMock" })).toHaveCount(0);
