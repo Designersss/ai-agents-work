@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useState, useSyncExternalStore, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { Globe2, Moon, Sun, Monitor, ChevronDown } from 'lucide-react';
 import { VimlaMark } from './vimla-mark';
 import { locales, type Locale } from '../lib/i18n';
+
+const subscribeToHydration = () => () => {};
+const clientHydrated = () => true;
+const serverNotHydrated = () => false;
 
 const names: Record<Locale, string> = {
   ru: 'Русский', en: 'English', 'zh-CN': '简体中文', ja: '日本語', 'sv-SE': 'Svenska'
@@ -24,9 +28,8 @@ export function Preferences() {
   const locale = useLocale() as Locale;
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeToHydration, clientHydrated, serverNotHydrated);
   const [busy, setBusy] = useState(false);
-  useEffect(() => setMounted(true), []);
 
   async function changeLocale(event: ChangeEvent<HTMLSelectElement>): Promise<void> {
     const next = event.currentTarget.value;
