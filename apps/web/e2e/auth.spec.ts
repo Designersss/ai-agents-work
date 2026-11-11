@@ -60,7 +60,7 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   const reset = await fetchMailLink(request, email, '/reset-password', verify.id);
   await page.goto(reset.link);
   await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
-  await page.getByLabel('Новый пароль').fill(second);
+  await page.locator('input#password').fill(second);
   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
   await expect(page.getByText(/Пароль изменён/)).toBeVisible();
 
