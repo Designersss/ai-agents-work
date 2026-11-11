@@ -53,6 +53,6 @@ export async function sendTransactionalMail(args: { to: string; url: string; kin
     from: process.env.SMTP_FROM!,
     to: args.to,
     subject: conf.subject,
-    text: \`\${conf.introduction}\n\n\${args.url}\n\nVimla\`
+    text: `${conf.introduction}\n\n${args.url}\n\nVimla`
   });
 }
