@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { createAuthClient } from 'better-auth/react';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -30,6 +30,7 @@ export default function Home() {
   const [workspaceName, setWorkspaceName] = useState('Моя компания');
   const [prompt, setPrompt] = useState('Здравствуйте! Хочу заказать кухню по индивидуальным размерам.');
   const [answer, setAnswer] = useState<Answer | null>(null);
+  const inFlight = useRef<{ workspaceId: string; prompt: string; key: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -71,12 +72,15 @@ export default function Home() {
     event.preventDefault();
     if (!selected) return;
     setBusy(true); setError(''); setNotice(''); setAnswer(null);
+    const same = inFlight.current?.workspaceId === selected && inFlight.current?.prompt === prompt;
+    if (!same) inFlight.current = { workspaceId: selected, prompt, key: crypto.randomUUID() };
     try {
       const result = await request<Answer>('/v1/agent/ask', {
         method: 'POST',
-        body: JSON.stringify({ workspaceId: selected, prompt, idempotencyKey: crypto.randomUUID() }),
+        body: JSON.stringify({ workspaceId: selected, prompt, idempotencyKey: inFlight.current!.key }),
       });
       setAnswer(result);
+      inFlight.current = null;
       await loadWorkspaces();
     } catch (err) { setError(err instanceof Error ? err.message : 'Ошибка запроса'); await loadWorkspaces(); }
     finally { setBusy(false); }
@@ -109,7 +113,7 @@ export default function Home() {
             <div><strong>{session.user.name}</strong><p className="muted">{session.user.email}</p></div></div>
           <h2>Пространство</h2>
           <label className="sr-only" htmlFor="ws">Выбрать Workspace</label>
-          <select id="ws" value={selected} onChange={e => { setSelected(e.target.value); setAnswer(null); }}>
+          <select id="ws" value={selected} onChange={e => { setSelected(e.target.value); setAnswer(null); inFlight.current = null; }}>
             {!workspaces.length && <option value="">Нет пространств</option>}
             {workspaces.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
           </select>
@@ -131,7 +135,7 @@ export default function Home() {
           {answer && <div className="usage">Вход: {answer.inputTokens} токенов · Выход: {answer.outputTokens} · Списано: {(answer.chargedKopecks / 100).toFixed(2)} ₽</div>}
           <form onSubmit={ask} className="compose">
             <label className="sr-only" htmlFor="prompt">Тестовое сообщение</label>
-            <textarea id="prompt" required maxLength={2000} value={prompt} onChange={e => setPrompt(e.target.value)} rows={3}/>
+            <textarea id="prompt" required maxLength={2000} value={prompt} onChange={e => { setPrompt(e.target.value); inFlight.current = null; }} rows={3}/>
             <button disabled={busy || !selected} type="submit">{busy ? 'Обработка…' : 'Отправить агенту'}</button>
           </form>
           <p className="footnote">Действия в CRM не выполняются. При неизвестном результате провайдера резерв сохраняется до сверки.</p>
