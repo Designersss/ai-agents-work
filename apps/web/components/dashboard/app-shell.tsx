@@ -54,7 +54,7 @@ function Brand() {
       <span className="text-[19px] font-semibold tracking-[-0.065em]">
         AIMock<span className="text-[#a3ceaf]">.</span>
       </span>
-      <span className="ml-auto rounded-md border border-[#31363d] px-1.5 py-1 text-[9px] font-semibold tracking-[0.08em] text-[#929ca4] uppercase">
+      <span className="ml-auto hidden rounded-md border border-[#31363d] px-1.5 py-1 sm:inline-flex text-[9px] font-semibold tracking-[0.08em] text-[#929ca4] uppercase">
         beta
       </span>
     </div>
