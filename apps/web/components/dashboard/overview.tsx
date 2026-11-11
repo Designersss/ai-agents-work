@@ -305,7 +305,7 @@ export function Overview({
         </div>
       </div>
 
-      <section aria-label="Основные показатели" className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 2xl:grid-cols-4">
+      <section aria-label="Основные показатели" className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
         <NumberCard
           icon={Wallet}
           title="Кошелёк"
