@@ -191,7 +191,7 @@ export function AuthPanel({ mode, token, invalidResetLink = false, verified = fa
           <input type="checkbox" checked={rememberMe} onChange={event => setRememberMe(event.target.checked)}/>
           <span>{t('rememberMe')}</span>
         </label>
-        <Link href="/forgot-password">{t('forgotPassword')}</Link>
+        <a href="/forgot-password">{t('forgotPassword')}</a>
       </div>}
       <button className="primary-button" type="submit" disabled={!hydrated || pending || ((mode === 'sign-in' || mode === 'sign-up') && checkingSession)}>
         {pending ? <><LoaderCircle className="spin" size={18} aria-hidden="true"/>{t(busyLabel)}</> :
