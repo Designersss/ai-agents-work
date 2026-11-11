@@ -30,7 +30,6 @@ export function AccountPanel() {
     const { error: signOutError } = await authClient.signOut();
     if (signOutError) { setExiting(false); return; }
     router.replace('/sign-in');
-    router.refresh();
   }
 
   return <article className="auth-card account-card">
