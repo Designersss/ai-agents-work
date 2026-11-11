@@ -7,7 +7,9 @@ test('UI requires session and Workspace before sending a live request', () => {
   assert.match(source, /!session\?\.user/);
   assert.match(source, /credentials: 'include'/);
   assert.match(source, /workspaceId: selected/);
-  assert.match(source, /idempotencyKey: crypto\.randomUUID\(\)/);
+  assert.match(source, /key: crypto\.randomUUID\(\)/);
+  assert.match(source, /idempotencyKey: inFlight\.current!\.key/);
+  assert.match(source, /same = inFlight\.current\?/);
   assert.match(source, /!selected/);
   assert.doesNotMatch(source, /mockAnswer|fakeResponse|Math\.random\(\).*answer/);
 });
