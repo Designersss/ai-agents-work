@@ -29,6 +29,7 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   const second = 'Changed-Password-56789';
 
   await page.goto('/sign-up');
+  await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
   await page.getByLabel('Ваше имя').fill('Vimla Reviewer');
   await page.getByLabel('Электронная почта').fill(email);
   await page.getByLabel('Пароль', { exact: true }).fill(first);
@@ -38,6 +39,7 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   const verify = await fetchMailLink(request, email, '/verify-email');
   await page.goto(verify.link);
   await expect(page).toHaveURL(/\/sign-in\?verified=1/);
+  await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
 
   await page.getByLabel('Электронная почта').fill(email);
   await page.getByLabel('Пароль', { exact: true }).fill(first);
@@ -50,31 +52,20 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   await expect(page).toHaveURL(/\/sign-in/);
   await page.getByRole('link', { name: 'Забыли пароль?' }).click();
   await page.getByLabel('Электронная почта').fill(email);
-  const authRequests: string[] = [];
-  page.on('request', req => {
-    if (req.url().includes('/api/auth/')) authRequests.push(req.method() + ' ' + new URL(req.url()).pathname);
-  });
-  const resultPromise = page.waitForResponse(response => response.url().includes('/api/auth/') && response.request().method() === 'POST', { timeout: 5_000 }).catch(() => null);
+  await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
+  await expect(page.getByLabel('Электронная почта')).toHaveValue(email);
   await page.getByRole('button', { name: 'Отправить ссылку' }).click();
-  const httpResult = await resultPromise;
-  const diagnostics = {
-    methodAndPath: authRequests,
-    httpStatus: httpResult?.status() ?? 'no auth request',
-    emailValid: await page.getByLabel('Электронная почта').evaluate(input => (input as HTMLInputElement).validity.valid),
-    formValid: await page.locator('form').evaluate(form => (form as HTMLFormElement).checkValidity()),
-    feedback: await page.locator('.feedback').allTextContents(),
-    page: new URL(page.url()).pathname
-  };
-  console.log('RESET_REQUEST_DIAGNOSTICS', JSON.stringify(diagnostics));
-  await expect(page.getByText(/Если аккаунт существует/), JSON.stringify(diagnostics)).toBeVisible();
+  await expect(page.getByText(/Если аккаунт существует/)).toBeVisible();
 
   const reset = await fetchMailLink(request, email, '/reset-password', verify.id);
   await page.goto(reset.link);
+  await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
   await page.getByLabel('Новый пароль').fill(second);
   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
   await expect(page.getByText(/Пароль изменён/)).toBeVisible();
 
   await page.getByRole('link', { name: 'Вернуться ко входу' }).click();
+  await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
   await page.getByLabel('Электронная почта').fill(email);
   await page.getByLabel('Пароль', { exact: true }).fill(second);
   await page.getByRole('button', { name: 'Войти' }).click();
