@@ -1,0 +1,16 @@
+{
+  "name": "aimock",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.19.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @aimock/web dev",
+    "lint": "pnpm --filter @aimock/web lint",
+    "typecheck": "pnpm --filter @aimock/web typecheck",
+    "test": "pnpm --filter @aimock/web test",
+    "build": "pnpm --filter @aimock/web build"
+  }
+}
