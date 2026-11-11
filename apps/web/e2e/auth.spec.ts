@@ -54,8 +54,20 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
   await page.getByLabel('Электронная почта').fill(email);
   await expect(page.getByLabel('Электронная почта')).toHaveValue(email);
+  const authResponses: string[] = [];
+  page.on('response', response => {
+    if (response.url().includes('/api/auth/')) authResponses.push(new URL(response.url()).pathname + ':' + response.status());
+  });
+  const firstResponse = page.waitForResponse(response => response.url().includes('/api/auth/'), { timeout: 8_000 }).catch(() => null);
   await page.getByRole('button', { name: 'Отправить ссылку' }).click();
-  await expect(page.getByText(/Если аккаунт существует/)).toBeVisible();
+  await firstResponse;
+  const feedback = await page.locator('.feedback').allTextContents();
+  const validity = await page.getByLabel('Электронная почта').evaluate(el => ({
+    valid: (el as HTMLInputElement).validity.valid,
+    valueLength: (el as HTMLInputElement).value.length
+  }));
+  console.log('RESET_DIAGNOSTICS', JSON.stringify({ authResponses, feedback, validity }));
+  await expect(page.getByText(/Если аккаунт существует/), JSON.stringify({ authResponses, feedback, validity })).toBeVisible();
 
   const reset = await fetchMailLink(request, email, '/reset-password', verify.id);
   await page.goto(reset.link);
