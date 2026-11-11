@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - design/dark-shell-overview-v1
   pull_request:
 
 permissions:
@@ -17,7 +16,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,3 +38,14 @@ jobs:
         run: pnpm test
       - name: Build
         run: pnpm build
+      - name: Install Chromium
+        run: pnpm --filter @aimock/web exec playwright install --with-deps chromium
+      - name: Browser checks and screenshots
+        run: pnpm --filter @aimock/web e2e
+      - name: Upload UI preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aimock-dark-overview-previews
+          path: apps/web/playwright-artifacts/*.png
+          if-no-files-found: ignore
