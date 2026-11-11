@@ -1,0 +1,51 @@
+name: AIMock UI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ui-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build
+      - name: Install Chromium
+        run: pnpm --filter @aimock/web exec playwright install --with-deps chromium
+      - name: Browser checks and screenshots
+        run: pnpm --filter @aimock/web e2e
+      - name: Upload UI preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aimock-dark-overview-previews
+          path: apps/web/playwright-artifacts/*.png
+          if-no-files-found: ignore
