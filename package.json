@@ -3,8 +3,9 @@
   "private": true,
   "packageManager": "pnpm@10.19.0",
   "engines": { "node": ">=22" },
+  "devDependencies": { "dotenv-cli": "^10.0.0" },
   "scripts": {
-    "dev": "pnpm --parallel --filter @vimla/api --filter @vimla/web dev",
+    "dev": "dotenv -e .env -- pnpm --parallel --filter @vimla/api --filter @vimla/web dev",
     "lint": "pnpm --filter @vimla/web lint && pnpm --filter @vimla/api lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
