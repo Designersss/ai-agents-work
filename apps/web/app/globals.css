@@ -284,3 +284,43 @@ a:hover { text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+
+/* Validation belongs to Vimla, never to native browser bubbles. */
+.auth-input-wrap [data-slot="input"][aria-invalid="true"] {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--destructive) 22%, transparent);
+}
+.auth-input-wrap [data-slot="input"][aria-invalid="true"]:focus-visible {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--destructive) 22%, transparent);
+}
+.auth-field-error {
+  color: var(--destructive);
+  font-size: 11.5px;
+  line-height: 1.35;
+  margin: 1px 0 0;
+}
+
+/* Radix select uses a filled hover/keyboard highlight, not a clipped blue ring. */
+[data-slot="select-item"],
+[data-slot="select-item"]:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  box-shadow: none;
+}
+[data-slot="select-item"][data-highlighted],
+[data-slot="select-item"]:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+[data-slot="select-trigger"]:focus-visible {
+  outline: 1px solid var(--border);
+  outline-offset: 0;
+  box-shadow: none;
+  border-color: var(--border);
+}
+.preferences [data-slot="select-trigger"]:focus-visible {
+  border-color: var(--border);
+  box-shadow: none;
+}
