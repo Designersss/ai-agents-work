@@ -6,6 +6,7 @@
   "devDependencies": { "dotenv-cli": "^10.0.0" },
   "scripts": {
     "dev": "dotenv -e .env -- pnpm --parallel --filter @vimla/api --filter @vimla/web dev",
+    "doctor": "dotenv -e .env -- node scripts/doctor.mjs",
     "lint": "pnpm --filter @vimla/web lint && pnpm --filter @vimla/api lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",

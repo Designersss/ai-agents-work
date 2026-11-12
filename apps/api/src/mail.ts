@@ -37,6 +37,27 @@ export function getMailLocale(request?: Request): MailLocale {
   return 'ru';
 }
 
+export async function verifyMailTransport(): Promise<void> {
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST!,
+    port: Number(process.env.SMTP_PORT!),
+    secure: process.env.SMTP_SECURE === 'true',
+    requireTLS: process.env.NODE_ENV === 'production' && process.env.SMTP_SECURE !== 'true',
+    auth: process.env.SMTP_USER ? {
+      user: process.env.SMTP_USER!,
+      pass: process.env.SMTP_PASSWORD!
+    } : undefined,
+    connectionTimeout: 4000,
+    greetingTimeout: 4000,
+    socketTimeout: 4000
+  });
+  try {
+    await transporter.verify();
+  } finally {
+    transporter.close();
+  }
+}
+
 export async function sendTransactionalMail(args: { to: string; url: string; kind: MailKind; locale: MailLocale }): Promise<void> {
   const conf = copy[args.locale][args.kind];
   const transporter = nodemailer.createTransport({

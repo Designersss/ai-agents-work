@@ -6,7 +6,7 @@ import { getMailLocale, sendTransactionalMail } from './mail.js';
 
 ensureEnvironment();
 
-const pool = new Pool({
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL!,
   max: 15,
   connectionTimeoutMillis: 10000,
