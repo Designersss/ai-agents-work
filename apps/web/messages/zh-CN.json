@@ -66,5 +66,20 @@
     "back": "返回",
     "error": "错误",
     "requiredField": "请填写此字段。"
+  },
+  "Landing": {
+    "navigation": "导航",
+    "about": "关于产品",
+    "knowledge": "知识",
+    "login": "登录",
+    "register": "注册",
+    "title": "让 AI 智能体处理工作任务",
+    "description": "我们正在开发一个将 AI 智能体、消息和知识整合在一起的工作平台。",
+    "aboutTitle": "在一个系统中使用智能体",
+    "aboutText": "Vimla 旨在帮助企业配置 AI 智能体、处理对话并连接业务信息。",
+    "agents": "智能体",
+    "messages": "消息",
+    "knowledgeTitle": "知识如何发挥作用",
+    "knowledgeText": "知识是有关产品、服务和流程的可靠信息。AI 智能体可以在权限控制下使用最新信息。"
   }
 }

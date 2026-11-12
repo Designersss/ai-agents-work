@@ -66,5 +66,20 @@
     "back": "Tillbaka",
     "error": "Fel",
     "requiredField": "Fyll i fältet."
+  },
+  "Landing": {
+    "navigation": "Navigering",
+    "about": "Om produkten",
+    "knowledge": "Kunskap",
+    "login": "Logga in",
+    "register": "Registrera dig",
+    "title": "AI-agenter för arbetsuppgifter",
+    "description": "Vi utvecklar en plattform som förenar AI-agenter, meddelanden och kunskap på en arbetsyta.",
+    "aboutTitle": "Ett system för att arbeta med agenter",
+    "aboutText": "Vimla utvecklas för att konfigurera AI-agenter, hantera konversationer och ansluta företagsinformation.",
+    "agents": "Agenter",
+    "messages": "Meddelanden",
+    "knowledgeTitle": "Så fungerar kunskap",
+    "knowledgeText": "Kunskap är verifierad information om produkter, tjänster och processer. AI-agenter ska kunna använda aktuell information med rätt åtkomstkontroll."
   }
 }

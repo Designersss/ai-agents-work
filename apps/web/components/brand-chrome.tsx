@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useSyncExternalStore } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
@@ -21,10 +22,10 @@ const shortNames: Record<Locale, string> = {
 };
 
 export function Brand() {
-  return <div className="brand" aria-label="Vimla">
+  return <Link href="/" className="brand" aria-label="Vimla">
     <span className="brand-icon"><VimlaMark size={27} title=""/></span>
     <span>Vimla</span>
-  </div>;
+  </Link>;
 }
 
 export function Preferences() {

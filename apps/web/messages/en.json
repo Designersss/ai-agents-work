@@ -66,5 +66,20 @@
     "back": "Back",
     "error": "Error",
     "requiredField": "This field is required."
+  },
+  "Landing": {
+    "navigation": "Navigation",
+    "about": "About",
+    "knowledge": "Knowledge",
+    "login": "Sign in",
+    "register": "Sign up",
+    "title": "AI agents for everyday work",
+    "description": "We are building a platform that brings AI agents, messages and knowledge into one workspace.",
+    "aboutTitle": "One system for working with agents",
+    "aboutText": "Vimla is being developed to configure AI agents, handle conversations and connect business information.",
+    "agents": "Agents",
+    "messages": "Messages",
+    "knowledgeTitle": "How knowledge works",
+    "knowledgeText": "Knowledge is verified information about products, services and processes. AI agents will be able to use current information under the appropriate access controls."
   }
 }
