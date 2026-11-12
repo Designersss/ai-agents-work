@@ -1,80 +1,119 @@
 # Vimla — платформа AI-агентов
 
-Основная архитектура: [#2](https://github.com/Designersss/ai-agents-work/issues/2). Утверждённый дизайн Auth: [#17](https://github.com/Designersss/ai-agents-work/issues/17), реальная Auth: [#7](https://github.com/Designersss/ai-agents-work/issues/7), брендинг: [#19](https://github.com/Designersss/ai-agents-work/issues/19).
+Основные задачи: [#2](https://github.com/Designersss/ai-agents-work/issues/2),
+[#7 — регистрация и вход](https://github.com/Designersss/ai-agents-work/issues/7),
+[#17 — дизайн](https://github.com/Designersss/ai-agents-work/issues/17),
+[#19 — Vimla](https://github.com/Designersss/ai-agents-work/issues/19).
 
-## Текущий PR: реальный email/password Auth
+Реализованы настоящие email/password Auth (Better Auth + NestJS),
+PostgreSQL, SMTP-письма для подтверждения регистрации и восстановления пароля,
+страница собственной учётной записи, шадсн-компоненты, пять языков и обе темы.
+Нет Google/Apple, фиктивных пользователей, seed-данных или демо-страниц.
 
-Next.js (App Router) UI + NestJS/Better Auth API + PostgreSQL + реальная SMTP-доставка. Поддерживаются регистрация с подтверждением почты, вход/выход, восстановление пароля, пользовательский экран аккаунта, пять языков и light/dark/system. **Социального входа нет.** Подключение CRM, AI и фиктивного dashboard в этот PR не входит.
+## Реальная отправка писем
 
-### Запуск
+Для SMTP используется Nodemailer, рекомендованный провайдер — [Resend](https://resend.com).
+Это **настоящая отправка на внешние почтовые ящики**, а не локальный перехватчик.
 
-Нужны Node.js 22+, pnpm 10+, Docker и SMTP с реальными реквизитами.
+Для регистрации пользователей на любые реальные адреса **требуется собственный
+подтверждённый почтовый домен и API-ключ Resend**:
 
-1. `cp .env.example .env` — заполнить все значения. `BETTER_AUTH_SECRET` сгенерировать криптографически случайным: `openssl rand -base64 48`. **Не использовать пример секрета в реальном окружении.**
-2. `docker compose up -d postgres`
-3. `pnpm install`
-4. `pnpm db:migrate` — применить схему Better Auth в PostgreSQL. Это отдельная явная операция; приложение не создаёт таблицы при каждом старте.
-5. `pnpm dev` — UI: http://localhost:3000/sign-in, API: http://localhost:4000/api/auth, health: http://localhost:4000/v1/health.
+1. Откройте [Resend](https://resend.com), создайте собственный аккаунт.
+2. В [Domains](https://resend.com/domains) добавьте **домен, которым владеете**.
+   Внесите **точные DNS-записи**, предложенные Resend (SPF, DKIM и др.).
+   Дождитесь статуса Verified, подтверждающего право на отправку.
+3. В [API Keys](https://resend.com/api-keys) создайте ключ с правами
+   Sending access, по возможности ограниченный своим доменом.
+4. В файле `.env`, который не коммитится, укажите:
 
-Порт PostgreSQL 5433 на localhost выбран, чтобы не конфликтовать с другими проектами, использующими 5432. Для production БД, URL и SMTP задаются в secret manager, нужна защита HTTPS и регулярные backup/restore.
+```dotenv
+SMTP_HOST=smtp.resend.com
+SMTP_PORT=465
+SMTP_USER=resend
+SMTP_PASSWORD=ВАШ_СЕКРЕТНЫЙ_API_КЛЮЧ_ИЗ_RESEND
+SMTP_FROM="Vimla <no-reply@ВАШ_ПОДТВЕРЖДЕННЫЙ_ДОМЕН>"
+SMTP_SECURE=true
+```
 
-### Структура и проверка
+Замените два обозначения на **настоящие значения**. Не присылайте ключ,
+адреса получателей или ссылки подтверждения в чат и не размещайте их в GitHub.
+В `NEXT_PUBLIC_*` ключи никогда не хранить. Существующий `.env` **не
+перезаписывать**, а изменить только необходимые SMTP-параметры.
 
-- `apps/api`: NestJS/Express, Better Auth (только email/password), PostgreSQL и SMTP.
-- `apps/web`: интерфейс Vimla, оригинальный `VimlaMark`, next-intl (ru/en/zh-CN/ja/sv-SE), next-themes.
-- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm e2e`. Не считать успешными, пока реально не выполнены.
-- В CI письма отправляются в **изолированный Mailpit**, который используется только для автоматизированных тестов, а не в пользовательском runtime.
+Официальные SMTP-настройки Resend: [документация SMTP](https://resend.com/docs/send-with-smtp).
+Если TCP 465 блокируется сетью, Resend также поддерживает 587 с STARTTLS:
+`SMTP_PORT=587`, `SMTP_SECURE=false` (код требует TLS для внешнего SMTP).
+Не отключайте шифрование, пытаясь решить сетевую ошибку.
 
-**Ручная приёмка обязательна:** до ревью дизайн и flow не считаются окончательно одобренными, нельзя сливать Draft PR в main. Действия и состояния пользовательского интерфейса опираются на настоящий API, нет фальшивых сессий или аккаунтов.
+## Запуск на Mac для регистрации настоящего аккаунта
 
-### Границы этого этапа
+Нужны Node.js 22+, pnpm 10+, Docker, ваши SMTP-реквизиты и подтверждённый
+домен. Docker Compose содержит **настоящую PostgreSQL с постоянным томом**.
+Это локальное рабочее окружение, а не публичный сервер; seed/demo-данных нет.
 
-После входа открывается **реальный** минимальный экран текущей учётной записи с фактическими данными сессии и рабочим выходом. Полный профиль, Personal/Company Workspace и Shell реализуются отдельными связанными задачами [#18](https://github.com/Designersss/ai-agents-work/issues/18), [#7](https://github.com/Designersss/ai-agents-work/issues/7) и [#5](https://github.com/Designersss/ai-agents-work/issues/5). Эти неготовые разделы **не нарисованы и не опубликованы как работающие функции**.
+1. Получите последние изменения ветки `feat/vimla-email-auth-v1`.
+2. Если файла `.env` нет, создайте его: `cp .env.example .env`.
+   Если он есть — оставьте существующие параметры БД и секрет Better Auth.
+3. Убедитесь, что `BETTER_AUTH_SECRET` криптографически случайный:
+   `openssl rand -base64 48`. Секрет нельзя менять после создания
+   реальных сессий без необходимости.
+4. Настройте Resend как выше. Для работы с локального браузера:
+   `BETTER_AUTH_URL=http://localhost:4000`,
+   `WEB_ORIGIN=http://localhost:3000`,
+   `NEXT_PUBLIC_API_URL=http://localhost:4000`.
+5. Выполните из корня:
 
-### Безопасность
+```bash
+pnpm install
+docker compose up -d postgres
+pnpm db:migrate
+pnpm dev
+```
 
-Better Auth хранит хеши паролей и сессии в PostgreSQL; email должен быть подтверждён перед входом. Настроены trusted origins, HTTP-only cookies, HTTPS cookies в production, rate limiting и отзыв сессий при сбросе пароля. Нельзя раскрывать через reset, существует ли email. Не логируем пароли, токены, ссылки подтверждения. Для production нужны HTTPS, защищённые SMTP, секреты, мониторинг доставки, backup/restore, контроль env и полноценный security-review перед релизом.
+6. Не выключая `pnpm dev`, в отдельном терминале проверьте:
 
+```bash
+pnpm doctor
+curl -i http://localhost:4000/v1/ready
+```
 
-### Local email testing (SMTP without using a real external mailbox)
+При корректной конфигурации `/v1/ready` возвращает HTTP 200 и
+`{"status":"ready"}`. Это означает, что PostgreSQL и SMTP-аутентификация
+доступны, **но не гарантирует**, что домен подтверждён и письмо дошло до
+конкретного ящика.
+7. Откройте `http://localhost:3000/sign-up`, укажите ваш реальный email,
+   завершите регистрацию, проверьте входящие и «Спам», перейдите по ссылке
+   подтверждения, затем войдите. Историю исходящих можно увидеть в Resend.
+8. Если вы уже регистрировали тот же адрес во время сбоя SMTP, запись могла
+   сохраниться. Используйте `/verify-email` для повторной отправки
+   подтверждения вместо создания дубля.
 
-For a local development environment you can use a **real SMTP server that captures
-emails locally**, isolated from the public-facing product. This is not a mock user,
-account, email verification or production delivery system. The authentication logic,
-PostgreSQL, verification links and password reset endpoints are real.
+**Важно:** `pnpm db:migrate` теперь настраивает БД **без зависимости от
+наличия почтового сервера**. Для `pnpm dev` почтовые реквизиты обязательны:
+сервер не будет выдавать неработающую регистрацию за рабочую.
 
-1. Create local-only settings **only if `.env` does not already exist**:
-   `test -f .env || cp .env.local.example .env`
-   If you already have `.env`, keep it and set just the SMTP keys as shown in `.env.local.example`.
-2. Replace the `BETTER_AUTH_SECRET` placeholder with the output of `openssl rand -base64 48`.
-3. Start PostgreSQL and the development SMTP inbox:
-   `docker compose --profile local-mail up -d postgres mailpit`
-4. Run `pnpm install && pnpm db:migrate && pnpm dev`.
-5. In a second terminal run `pnpm doctor` to verify DB, API, email reachability, and local URLs.
-6. Register through `http://localhost:3000/sign-up`.
-7. Open `http://localhost:8025` to read your real verification email from the local SMTP inbox and follow the link.
+## Диагностика
 
-**Mailpit never delivers a message to a real email address.** To validate actual
-public mailbox delivery and to deploy the production product, use the real authenticated
-SMTP provider/domain configured via `.env`/secret manager, and verify SPF/DKIM/DMARC.
+- `/v1/health` — процесс API запущен (не доказывает работу БД/SMTP).
+- `/v1/ready` — доступны PostgreSQL и SMTP-аутентификация.
+- `pnpm doctor` — проверяет конфигурацию без вывода секретов.
+- Если API не запустился — посмотрите терминал `pnpm dev`.
+- Если SMTP недоступен — проверьте сеть, порт, права API-ключа Resend.
+- Если 200 на `/ready`, но SMTP не отправляет реальным получателям —
+  проверьте Verified в Resend Domains и адрес `SMTP_FROM`.
+- HTTP-статус `POST /api/auth/sign-up/email` можно посмотреть в Network
+  браузера, но **не делитесь Request Body, паролями, токенами, ссылками**.
+- После изменения `.env` обязательно полностью перезапустите `pnpm dev`.
 
-### Troubleshooting a generic signup failure
+## Проверки и границы релиза
 
-The UI and email API are separate processes. A rendered sign-up page does **not**
-prove the API is running. Verify in order:
+Команды: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`,
+`pnpm e2e`. Исключительно **в изолированном CI** используется Mailpit для
+сквозных автоматических тестов SMTP с PostgreSQL; он не включён ни в
+обычный Docker Compose, ни в пользовательский runtime.
 
-- `curl -i http://localhost:4000/v1/health` — API process (200).
-- `curl -i http://localhost:4000/v1/ready` — actual PostgreSQL + SMTP readiness (200).
-- `docker compose ps` — Postgres and (for local-mail) Mailpit running.
-- `pnpm doctor` — checks required configuration without printing secrets or email addresses.
-- Inspect the terminal running `pnpm dev` for the **server's HTTP status/error category**, and
-  browser DevTools → Network → `/api/auth/sign-up/email` for status (not request body).
-- Ensure the browser uses **`http://localhost:3000`**, not an alternate hostname or port,
-  unless you explicitly update `WEB_ORIGIN`, `BETTER_AUTH_URL`, and `NEXT_PUBLIC_API_URL`.
-- For SMTP errors, `ECONNECTION` / `ESOCKET` / `ETIMEDOUT` generally indicate server/
-  network problems; `EAUTH` indicates SMTP credentials. Do not share SMTP secrets or links.
-- If the server previously saved the user but couldn't send the email, try **resending
-  verification** from `/verify-email`; do not repeatedly create the same account.
-
-CI uses isolated database + Mailpit. Its passing checks do not prove that a developer's
-own SMTP, database, credentials, and local ports are correctly configured.
+Для публичного production-сервиса нужны HTTPS, реальные домены API/Web,
+защищённые секреты и БД, backup/restore, проверка CORS/cookies, rate limits,
+наблюдаемость, доставляемость писем, negative/security testing и ручная
+приёмка. Наличие рабочего локального сервиса ещё не означает, что Vimla
+развёрнута публично. PR остаётся Draft до отдельного согласования.
