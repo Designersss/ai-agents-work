@@ -22,5 +22,7 @@ describe('real email/password auth input validation', () => {
     expect(errorKey('EMAIL_NOT_VERIFIED')).toBe('unverifiedEmail');
     expect(errorKey('UNKNOWN_SECRET_BACKEND_ERROR')).toBe('requestFailed');
     expect(errorKey(undefined, 429)).toBe('rateLimited');
+    expect(errorKey(undefined, 500)).toBe('serviceUnavailable');
+    expect(errorKey(undefined, 503)).toBe('serviceUnavailable');
   });
 });

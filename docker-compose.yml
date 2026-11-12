@@ -26,11 +26,6 @@ services:
       - "127.0.0.1:8025:8025"
     environment:
       MP_MAX_MESSAGES: 1000
-    healthcheck:
-      test: ["CMD", "/mailpit", "readyz"]
-      interval: 5s
-      timeout: 3s
-      retries: 12
 
 volumes:
   vimla_postgres:

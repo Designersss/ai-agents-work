@@ -201,7 +201,9 @@ export function AuthPanel({
         window.history.replaceState(null, '', '/reset-password');
       }
     } catch {
-      setIssue(t('requestFailed'));
+      // Unexpected transport/runtime failures are not invalid field input.
+      // Avoid reflecting raw server responses or stack traces to the user.
+      setIssue(t('serviceUnavailable'));
     } finally {
       setPending(false);
     }

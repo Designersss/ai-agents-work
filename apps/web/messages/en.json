@@ -65,7 +65,8 @@
     "emailSent": "Check your inbox: a verification email has been sent.",
     "back": "Back",
     "error": "Error",
-    "requiredField": "This field is required."
+    "requiredField": "This field is required.",
+    "serviceUnavailable": "The authentication service is temporarily unavailable. Check your connection or try again later."
   },
   "Landing": {
     "navigation": "Navigation",

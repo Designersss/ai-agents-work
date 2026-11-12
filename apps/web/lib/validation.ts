@@ -12,10 +12,11 @@ export function validName(value: string): boolean {
   return name.length >= 2 && name.length <= 80;
 }
 
-export type AuthErrorKey = 'invalidCredentials' | 'unverifiedEmail' | 'rateLimited' | 'duplicateEmail' | 'requestFailed';
+export type AuthErrorKey = 'invalidCredentials' | 'unverifiedEmail' | 'rateLimited' | 'duplicateEmail' | 'serviceUnavailable' | 'requestFailed';
 
 export function errorKey(code?: string, status?: number): AuthErrorKey {
   if (status === 429 || code === 'TOO_MANY_REQUESTS') return 'rateLimited';
+  if (status !== undefined && status >= 500) return 'serviceUnavailable';
   if (code === 'EMAIL_NOT_VERIFIED' || code === 'EMAIL_NOT_VERIFIED_ERROR') return 'unverifiedEmail';
   if (code === 'INVALID_EMAIL_OR_PASSWORD' || code === 'INVALID_PASSWORD' || code === 'INVALID_CREDENTIALS') return 'invalidCredentials';
   if (code === 'USER_ALREADY_EXISTS' || code === 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL') return 'duplicateEmail';

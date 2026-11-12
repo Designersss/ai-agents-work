@@ -65,7 +65,8 @@
     "emailSent": "Bekräftelsemejlet har skickats. Kontrollera inkorgen.",
     "back": "Tillbaka",
     "error": "Fel",
-    "requiredField": "Fyll i fältet."
+    "requiredField": "Fyll i fältet.",
+    "serviceUnavailable": "Inloggningstjänsten är tillfälligt otillgänglig. Kontrollera anslutningen eller försök igen senare."
   },
   "Landing": {
     "navigation": "Navigering",

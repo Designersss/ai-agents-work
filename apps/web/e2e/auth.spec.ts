@@ -221,3 +221,10 @@ test('mobile landing has usable navigation and no horizontal overflow', async ({
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflow).toBe(false);
 });
+
+
+test('real API readiness depends on a database and a usable SMTP server', async ({ request }) => {
+  const response = await request.get('http://localhost:4000/v1/ready');
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toEqual({ status: 'ready' });
+});
