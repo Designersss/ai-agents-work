@@ -43,8 +43,9 @@ emails locally**, isolated from the public-facing product. This is not a mock us
 account, email verification or production delivery system. The authentication logic,
 PostgreSQL, verification links and password reset endpoints are real.
 
-1. Create local-only settings (do not overwrite a configured production SMTP):
-   `cp .env.local.example .env`
+1. Create local-only settings **only if `.env` does not already exist**:
+   `test -f .env || cp .env.local.example .env`
+   If you already have `.env`, keep it and set just the SMTP keys as shown in `.env.local.example`.
 2. Replace the `BETTER_AUTH_SECRET` placeholder with the output of `openssl rand -base64 48`.
 3. Start PostgreSQL and the development SMTP inbox:
    `docker compose --profile local-mail up -d postgres mailpit`
