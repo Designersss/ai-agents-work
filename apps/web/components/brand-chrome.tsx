@@ -16,12 +16,13 @@ const serverNotHydrated = () => false;
 const names: Record<Locale, string> = {
   ru: 'Русский', en: 'English', 'zh-CN': '简体中文', ja: '日本語', 'sv-SE': 'Svenska'
 };
+const shortNames: Record<Locale, string> = {
+  ru: 'RU', en: 'EN', 'zh-CN': '中文', ja: 'JP', 'sv-SE': 'SV'
+};
 
-export function Brand({ size = 'normal' }: { size?: 'normal' | 'small' }) {
-  return <div className={'brand brand-' + size}>
-    <span className="brand-icon">
-      <VimlaMark size={size === 'small' ? 21 : 26} title=""/>
-    </span>
+export function Brand() {
+  return <div className="brand" aria-label="Vimla">
+    <span className="brand-icon"><VimlaMark size={27} title=""/></span>
     <span>Vimla</span>
   </div>;
 }
@@ -41,13 +42,13 @@ export function Preferences() {
     setBusy(true);
     setFailed(false);
     try {
-      const result = await fetch('/api/locale', {
+      const response = await fetch('/api/locale', {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ locale: next })
       });
-      if (!result.ok) throw new Error('Locale update failed');
+      if (!response.ok) throw new Error('Locale update failed');
       router.refresh();
     } catch {
       setFailed(true);
@@ -56,37 +57,40 @@ export function Preferences() {
     }
   }
 
-  return <div className="preferences">
-    <Select value={locale} disabled={busy} onValueChange={value => { void changeLocale(value); }}>
-      <SelectTrigger size="sm" aria-label={t('language')} title={t('language')} className="locale-trigger">
-        <Globe2 aria-hidden="true" size={14}/>
-        <SelectValue/>
-      </SelectTrigger>
-      <SelectContent>
-        {locales.map(item => <SelectItem key={item} value={item}>{names[item]}</SelectItem>)}
-      </SelectContent>
-    </Select>
+  return (
+    <div className="preferences">
+      <Select value={locale} disabled={busy} onValueChange={value => { void changeLocale(value); }}>
+        <SelectTrigger size="sm" aria-label={t('language')} title={t('language')} className="locale-trigger">
+          <Globe2 aria-hidden="true" size={15}/>
+          <SelectValue>{shortNames[locale]}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {locales.map(item => <SelectItem key={item} value={item}>{names[item]}</SelectItem>)}
+        </SelectContent>
+      </Select>
 
-    {hydrated && <Select value={theme ?? 'system'} onValueChange={setTheme}>
-      <SelectTrigger size="sm" aria-label={t('theme')} title={t('theme')} className="theme-trigger">
-        {theme === 'dark' ? <Moon aria-hidden="true" size={14}/> :
-          theme === 'light' ? <Sun aria-hidden="true" size={14}/> :
-          <Monitor aria-hidden="true" size={14}/>}
-        <SelectValue/>
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="system">{t('system')}</SelectItem>
-        <SelectItem value="light">{t('light')}</SelectItem>
-        <SelectItem value="dark">{t('dark')}</SelectItem>
-      </SelectContent>
-    </Select>}
-    {failed && <span role="alert" className="preferences-error">{authT('requestFailed')}</span>}
-  </div>;
+      {hydrated && <Select value={theme ?? 'system'} onValueChange={setTheme}>
+        <SelectTrigger size="sm" aria-label={t('theme')} title={t('theme')} className="theme-trigger">
+          {theme === 'dark' ? <Moon aria-hidden="true" size={16}/> :
+            theme === 'light' ? <Sun aria-hidden="true" size={16}/> :
+            <Monitor aria-hidden="true" size={16}/>}
+          <span className="sr-only"><SelectValue/></span>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="system">{t('system')}</SelectItem>
+          <SelectItem value="light">{t('light')}</SelectItem>
+          <SelectItem value="dark">{t('dark')}</SelectItem>
+        </SelectContent>
+      </Select>}
+      {failed && <span role="alert" className="preferences-error">{authT('requestFailed')}</span>}
+    </div>
+  );
 }
 
 export function AuthHeader() {
-  return <header className="site-header">
-    <Brand size="small"/>
-    <Preferences/>
-  </header>;
+  return (
+    <header className="auth-toolbar">
+      <Preferences/>
+    </header>
+  );
 }
