@@ -1,0 +1,17 @@
+{
+  "name": "vimla-platform",
+  "private": true,
+  "packageManager": "pnpm@10.19.0",
+  "engines": { "node": ">=22" },
+  "devDependencies": { "dotenv-cli": "^10.0.0" },
+  "scripts": {
+    "dev": "dotenv -e .env -- pnpm --parallel --filter @vimla/api --filter @vimla/web dev",
+    "doctor": "dotenv -e .env -- node scripts/doctor.mjs",
+    "lint": "pnpm --filter @vimla/web lint && pnpm --filter @vimla/api lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "build": "pnpm --filter @vimla/api build && pnpm --filter @vimla/web build",
+    "db:migrate": "pnpm --filter @vimla/api db:migrate",
+    "e2e": "pnpm --filter @vimla/web e2e"
+  }
+}
