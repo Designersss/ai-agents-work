@@ -8,7 +8,7 @@ import { authClient } from '../lib/auth-client';
 import { Brand } from './brand-chrome';
 import { Alert, AlertDescription } from './ui/alert';
 import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 export function AccountPanel() {
   const t = useTranslations('Auth');
@@ -79,6 +79,5 @@ export function AccountPanel() {
         {exiting ? t('logoutBusy') : t('signOut')}
       </Button>
     </CardContent>
-    <CardFooter className="auth-card-footer account-footer" aria-hidden="true"/>
   </Card>;
 }
