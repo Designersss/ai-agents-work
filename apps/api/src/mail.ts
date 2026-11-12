@@ -89,18 +89,18 @@ export async function sendTransactionalMail(args: {
   const escapedUrl = htmlEscape(url.toString());
   const escapedSubject = htmlEscape(conf.subject);
   const escapedIntro = htmlEscape(conf.introduction);
-  const html = \`<!doctype html>
-<html lang="\${htmlEscape(args.locale)}">
+  const html = `<!doctype html>
+<html lang="${htmlEscape(args.locale)}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:32px 18px;background:#f6f7f9;color:#202124;font:14px/1.6 Arial,sans-serif">
   <div style="max-width:540px;margin:0 auto;padding:30px 28px;background:#ffffff;border:1px solid #e7e9ed;border-radius:12px">
     <strong style="font-size:23px;letter-spacing:-.5px">Vimla</strong>
-    <h1 style="font-size:20px;font-weight:600;line-height:1.3;margin:24px 0 12px">\${escapedSubject}</h1>
-    <p style="margin:0 0 22px;color:#555">\${escapedIntro}</p>
-    <a href="\${escapedUrl}" style="display:inline-block;background:#307cf6;color:white;text-decoration:none;border-radius:7px;padding:11px 18px;font-weight:600">Vimla</a>
-    <p style="margin:24px 0 8px;font-size:12px;color:#666;overflow-wrap:anywhere">\${escapedUrl}</p>
+    <h1 style="font-size:20px;font-weight:600;line-height:1.3;margin:24px 0 12px">${escapedSubject}</h1>
+    <p style="margin:0 0 22px;color:#555">${escapedIntro}</p>
+    <a href="${escapedUrl}" style="display:inline-block;background:#307cf6;color:white;text-decoration:none;border-radius:7px;padding:11px 18px;font-weight:600">Vimla</a>
+    <p style="margin:24px 0 8px;font-size:12px;color:#666;overflow-wrap:anywhere">${escapedUrl}</p>
   </div>
-</body></html>\`;
+</body></html>`;
 
   try {
     // No auth token, password, email body or link is written into application logs.
@@ -108,7 +108,7 @@ export async function sendTransactionalMail(args: {
       from: process.env.SMTP_FROM!,
       to: args.to,
       subject: conf.subject,
-      text: \`\${conf.introduction}\n\n\${url.toString()}\n\nVimla\`,
+      text: `${conf.introduction}\n\n${url.toString()}\n\nVimla`,
       html
     });
   } finally {
