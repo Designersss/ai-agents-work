@@ -75,9 +75,25 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
 test('language and theme settings persist across reload', async ({ page }) => {
   await page.goto('/sign-in');
   await expect(page.getByRole('heading', { name: 'Вход в аккаунт' })).toBeVisible();
-  await page.getByRole('combobox', { name: 'Язык' }).selectOption('en');
+  await expect(page.locator('[data-slot="card"]').first()).toBeVisible();
+  await expect(page.locator('[data-slot="input"]')).toHaveCount(2);
+  await expect(page.getByRole('checkbox', { name: 'Запомнить меня' })).toBeVisible();
+  const cardWidth = await page.locator('[data-slot="card"]').first().evaluate(el => el.getBoundingClientRect().width);
+  expect(cardWidth).toBeLessThanOrEqual(380);
+  await test.info().attach('Vimla login - light', {
+    body: await page.screenshot(),
+    contentType: 'image/png'
+  });
+
+  await page.getByRole('combobox', { name: 'Язык' }).click();
+  await page.getByRole('option', { name: 'English' }).click();
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption('dark');
+  await page.getByRole('combobox', { name: 'Theme' }).click();
+  await page.getByRole('option', { name: 'Dark' }).click();
+  await test.info().attach('Vimla login - dark', {
+    body: await page.screenshot(),
+    contentType: 'image/png'
+  });
   await expect(page.locator('html')).toHaveClass(/dark/);
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
