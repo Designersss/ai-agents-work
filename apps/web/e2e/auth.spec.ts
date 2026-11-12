@@ -151,3 +151,73 @@ test('all five locales retain accessible fields and frameless composition', asyn
     await expect(page.locator('[data-slot="input"]')).toHaveCount(2);
   }
 });
+
+
+test('auth fields show localized inline errors instead of browser validation popups', async ({ page }) => {
+  await page.goto('/sign-up');
+  const form = page.locator('form.auth-form');
+  await expect(form).toHaveAttribute('data-ready', 'true');
+  expect(await form.evaluate(el => (el as HTMLFormElement).noValidate)).toBe(true);
+
+  await page.getByRole('button', { name: 'Зарегистрироваться' }).click();
+  await expect(page.locator('.auth-field-error')).toHaveCount(3);
+  await expect(page.locator('[data-slot="input"][aria-invalid="true"]')).toHaveCount(3);
+  await expect(page.getByLabel('Ваше имя')).toBeFocused();
+  await expect(page.getByText('Заполните поле.')).toHaveCount(3);
+
+  await page.getByLabel('Ваше имя').fill('Valid Name');
+  await expect(page.locator('.auth-field-error')).toHaveCount(2);
+  await page.getByLabel('Эл. почта').fill('not-an-email');
+  await page.getByRole('button', { name: 'Зарегистрироваться' }).click();
+  await expect(page.getByText('Введите корректный email.')).toBeVisible();
+  await expect(page.getByLabel('Эл. почта')).toHaveAttribute('aria-invalid', 'true');
+  await page.getByLabel('Эл. почта').fill('new@example.test');
+  await expect(page.getByLabel('Эл. почта')).toHaveAttribute('aria-invalid', 'false');
+
+  await test.info().attach('Vimla inline registration validation', {
+    body: await page.screenshot(),
+    contentType: 'image/png'
+  });
+});
+
+test('language selector highlights by background without a clipped blue outline', async ({ page }) => {
+  await page.goto('/sign-in');
+  const trigger = page.getByRole('combobox', { name: 'Язык' });
+  await trigger.click();
+  const english = page.getByRole('option', { name: 'English' });
+  await english.hover();
+  const style = await english.evaluate(el => ({
+    background: getComputedStyle(el).backgroundColor,
+    outline: getComputedStyle(el).outlineStyle
+  }));
+  expect(style.outline).toBe('none');
+  expect(style.background).not.toBe('rgba(0, 0, 0, 0)');
+  await page.mouse.click(180, 200);
+  await expect(page.getByRole('option', { name: 'English' })).not.toBeVisible();
+  const triggerOutline = await trigger.evaluate(el => getComputedStyle(el).outlineColor);
+  // Closing by clicking elsewhere must not leave the bright primary focus treatment behind.
+  expect(triggerOutline).not.toBe('rgb(38, 118, 241)');
+});
+
+test('public home works, the centered brand leads home, and account requires login', async ({ page }) => {
+  await page.goto('/sign-in');
+  await page.getByRole('link', { name: 'Vimla' }).click();
+  await expect(page).toHaveURL('http://localhost:3000/');
+  await expect(page.getByRole('heading', { name: 'AI-агенты для рабочих задач' })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Навигация' }).getByRole('link', { name: 'Знания' }).click();
+  await expect(page).toHaveURL(/#knowledge$/);
+  await page.getByRole('navigation', { name: 'Навигация' }).getByRole('link', { name: 'Вход' }).click();
+  await expect(page).toHaveURL(/\/sign-in/);
+
+  await page.goto('/account');
+  await expect(page).toHaveURL(/\/sign-in/);
+});
+
+test('mobile landing has usable navigation and no horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Навигация' }).getByRole('link', { name: 'Регистрация' })).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(overflow).toBe(false);
+});
