@@ -7,9 +7,9 @@
     "dark": "深色"
   },
   "Auth": {
-    "signInTitle": "登录账户",
+    "signInTitle": "登录",
     "signInSubtitle": "继续使用 Vimla",
-    "registerTitle": "创建账户",
+    "registerTitle": "注册",
     "registerSubtitle": "开始使用 Vimla",
     "name": "您的姓名",
     "email": "电子邮箱",

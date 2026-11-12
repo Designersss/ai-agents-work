@@ -31,7 +31,7 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   await page.goto('/sign-up');
   await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
   await page.getByLabel('Ваше имя').fill('Vimla Reviewer');
-  await page.getByLabel('Электронная почта').fill(email);
+  await page.getByLabel('Эл. почта').fill(email);
   await page.getByLabel('Пароль', { exact: true }).fill(first);
   await page.getByRole('button', { name: 'Зарегистрироваться' }).click();
   await expect(page).toHaveURL(/\/verify-email/);
@@ -41,7 +41,7 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   await expect(page).toHaveURL(/\/sign-in\?verified=1/);
   await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
 
-  await page.getByLabel('Электронная почта').fill(email);
+  await page.getByLabel('Эл. почта').fill(email);
   await page.getByLabel('Пароль', { exact: true }).fill(first);
   await page.getByRole('button', { name: 'Войти' }).click();
   await expect(page).toHaveURL(/\/account/);
@@ -52,8 +52,8 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
   await expect(page).toHaveURL(/\/sign-in/);
   await page.getByRole('link', { name: 'Забыли пароль?' }).click();
   await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
-  await page.getByLabel('Электронная почта').fill(email);
-  await expect(page.getByLabel('Электронная почта')).toHaveValue(email);
+  await page.getByLabel('Эл. почта').fill(email);
+  await expect(page.getByLabel('Эл. почта')).toHaveValue(email);
   await page.getByRole('button', { name: 'Отправить ссылку' }).click();
   await expect(page.getByText(/Если аккаунт существует/)).toBeVisible();
 
@@ -66,7 +66,7 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
 
   await page.getByRole('link', { name: 'Вернуться ко входу' }).click();
   await expect(page.locator('form.auth-form')).toHaveAttribute('data-ready', 'true');
-  await page.getByLabel('Электронная почта').fill(email);
+  await page.getByLabel('Эл. почта').fill(email);
   await page.getByLabel('Пароль', { exact: true }).fill(second);
   await page.getByRole('button', { name: 'Войти' }).click();
   await expect(page).toHaveURL(/\/account/);
@@ -74,13 +74,24 @@ test('register -> verify actual email -> log in -> log out -> reset password', a
 
 test('language and theme settings persist across reload', async ({ page }) => {
   await page.goto('/sign-in');
-  await expect(page.getByRole('heading', { name: 'Вход в аккаунт' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Вход' })).toBeVisible();
   await expect(page.locator('[data-slot="card"]').first()).toBeVisible();
   await expect(page.locator('[data-slot="input"]')).toHaveCount(2);
-  await expect(page.getByRole('checkbox', { name: 'Запомнить меня' })).toBeVisible();
-  const cardWidth = await page.locator('[data-slot="card"]').first().evaluate(el => el.getBoundingClientRect().width);
-  expect(cardWidth).toBeLessThanOrEqual(380);
-  await test.info().attach('Vimla login - light', {
+  await expect(page.getByRole('link', { name: 'Забыли пароль?' })).toBeVisible();
+  const geometry = await page.locator('[data-slot="card"]').first().evaluate(el => ({
+    width: el.getBoundingClientRect().width,
+    border: getComputedStyle(el).borderTopWidth,
+    shadow: getComputedStyle(el).boxShadow,
+    background: getComputedStyle(el).backgroundColor
+  }));
+  expect(geometry.width).toBeLessThanOrEqual(410);
+  expect(geometry.border).toBe('0px');
+  expect(geometry.shadow).toBe('none');
+
+  await page.getByRole('combobox', { name: 'Тема' }).click();
+  await page.getByRole('option', { name: 'Светлая' }).click();
+  await expect(page.locator('html')).not.toHaveClass(/dark/);
+  await test.info().attach('Vimla minimalist sign-in — light', {
     body: await page.screenshot(),
     contentType: 'image/png'
   });
@@ -90,7 +101,7 @@ test('language and theme settings persist across reload', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await page.getByRole('combobox', { name: 'Theme' }).click();
   await page.getByRole('option', { name: 'Dark' }).click();
-  await test.info().attach('Vimla login - dark', {
+  await test.info().attach('Vimla minimalist sign-in — dark', {
     body: await page.screenshot(),
     contentType: 'image/png'
   });
@@ -99,5 +110,44 @@ test('language and theme settings persist across reload', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await expect(page.locator('html')).toHaveClass(/dark/);
   await page.goto('/sign-up');
-  await expect(page.getByRole('heading', { name: 'Create an account' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sign up' })).toBeVisible();
+});
+
+
+test('frameless form stays centered, readable and free of horizontal scroll on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  for (const path of ['/sign-in', '/sign-up', '/forgot-password', '/verify-email']) {
+    await page.goto(path);
+    await expect(page.locator('[data-slot="card"]').first()).toBeVisible();
+    const geometry = await page.locator('[data-slot="card"]').first().evaluate(el => ({
+      left: el.getBoundingClientRect().left,
+      right: el.getBoundingClientRect().right,
+      background: getComputedStyle(el).backgroundColor,
+      border: getComputedStyle(el).borderTopWidth,
+      shadow: getComputedStyle(el).boxShadow
+    }));
+    expect(geometry.left).toBeGreaterThanOrEqual(15);
+    expect(geometry.right).toBeLessThanOrEqual(345);
+    expect(geometry.border).toBe('0px');
+    expect(geometry.shadow).toBe('none');
+    const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(documentWidth).toBeLessThanOrEqual(360);
+    await test.info().attach('Vimla mobile ' + path.slice(1), {
+      body: await page.screenshot(),
+      contentType: 'image/png'
+    });
+  }
+});
+
+test('all five locales retain accessible fields and frameless composition', async ({ page }) => {
+  await page.goto('/sign-in');
+  const localeNames = ['English', '简体中文', '日本語', 'Svenska', 'Русский'];
+  const headingNames = ['Sign in', '登录', 'ログイン', 'Logga in', 'Вход'];
+  for (let i = 0; i < localeNames.length; i++) {
+    const langLabel = ['Язык', 'Language', '语言', '言語', 'Språk'][i];
+    await page.getByRole('combobox', { name: langLabel }).click();
+    await page.getByRole('option', { name: localeNames[i], exact: true }).click();
+    await expect(page.getByRole('heading', { name: headingNames[i], exact: true })).toBeVisible();
+    await expect(page.locator('[data-slot="input"]')).toHaveCount(2);
+  }
 });

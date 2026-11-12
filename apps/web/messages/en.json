@@ -9,7 +9,7 @@
   "Auth": {
     "signInTitle": "Sign in",
     "signInSubtitle": "Continue working with Vimla",
-    "registerTitle": "Create an account",
+    "registerTitle": "Sign up",
     "registerSubtitle": "Get started with Vimla",
     "name": "Your name",
     "email": "Email address",
@@ -21,7 +21,7 @@
     "signUp": "Sign up",
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",
-    "createAccount": "Create account",
+    "createAccount": "Sign up",
     "passwordRule": "At least 8 characters",
     "verifyTitle": "Verify your email",
     "verifyBody": "Open the link in your email to confirm your address. If you haven't received it, request another email.",
