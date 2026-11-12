@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { AlertCircle, CheckCircle2, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { authClient } from '../lib/auth-client';
-import { validEmail, validName, validPassword, errorKey } from '../lib/validation';
+import { errorKey } from '../lib/validation';
+import { validateAuthForm, type AuthField, type AuthFieldErrorKey } from '../lib/auth-form-validation';
 import { AuthSurface } from './auth-surface';
 import { Alert, AlertDescription } from './ui/alert';
 import { Button } from './ui/button';
@@ -20,11 +21,11 @@ const serverNotHydrated = () => false;
 export type AuthMode = 'sign-in' | 'sign-up' | 'forgot-password' | 'reset-password' | 'verify-email';
 
 function FormField({
-  id, label, type = 'text', autoComplete, value, setValue, showToggle = false
+  id, label, type = 'text', autoComplete, value, setValue, showToggle = false, error
 }: {
   id: string; label: string; type?: 'text' | 'email' | 'password';
   autoComplete?: string; value: string; setValue: (value: string) => void;
-  showToggle?: boolean;
+  showToggle?: boolean; error?: string;
 }) {
   const t = useTranslations('Auth');
   const [visible, setVisible] = useState(false);
@@ -42,6 +43,8 @@ function FormField({
           inputMode={type === 'email' ? 'email' : undefined}
           spellCheck={false}
           required
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
           value={value}
           onChange={event => setValue(event.target.value)}
           minLength={isPassword ? 8 : undefined}
@@ -61,6 +64,7 @@ function FormField({
           </Button>
         )}
       </div>
+      {error && <p id={`${id}-error`} className="auth-field-error" role="alert">{error}</p>}
     </div>
   );
 }
@@ -82,7 +86,21 @@ export function AuthPanel({
   const [password, setPassword] = useState('');
   const [pending, setPending] = useState(false);
   const [issue, setIssue] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<AuthField, AuthFieldErrorKey>>>({});
   const [success, setSuccess] = useState('');
+
+  function updateField(field: AuthField, value: string): void {
+    if (field === 'name') setName(value);
+    if (field === 'email') setEmail(value);
+    if (field === 'password') setPassword(value);
+    setFieldErrors(current => {
+      if (!current[field]) return current;
+      const updated = { ...current };
+      delete updated[field];
+      return updated;
+    });
+    if (issue) setIssue('');
+  }
 
   useEffect(() => {
     if ((mode === 'sign-in' || mode === 'sign-up') && !checkingSession && session?.user) {
@@ -128,16 +146,11 @@ export function AuthPanel({
     setIssue('');
     setSuccess('');
 
-    if (mode !== 'reset-password' && !validEmail(email)) {
-      setIssue(t('invalidEmail'));
-      return;
-    }
-    if (mode === 'sign-up' && !validName(name)) {
-      setIssue(t('invalidName'));
-      return;
-    }
-    if ((mode === 'sign-in' || mode === 'sign-up' || mode === 'reset-password') && !validPassword(password)) {
-      setIssue(t('passwordTooShort'));
+    const errors = validateAuthForm(mode, { name, email, password });
+    setFieldErrors(errors);
+    const firstInvalid = (['name', 'email', 'password'] as const).find(field => errors[field]);
+    if (firstInvalid) {
+      document.getElementById(firstInvalid === 'name' ? 'full-name' : firstInvalid)?.focus();
       return;
     }
 
@@ -224,21 +237,28 @@ export function AuthPanel({
       )}
 
       {isForm && (
-        <form className="auth-form" data-ready={hydrated ? 'true' : 'false'}
+        <form className="auth-form" noValidate data-ready={hydrated ? 'true' : 'false'}
           onSubmit={event => { void submit(event); }}>
           {mode === 'sign-up' && (
             <FormField id="full-name" label={t('name')} value={name}
-              setValue={setName} autoComplete="name"/>
+              setValue={value => updateField('name', value)}
+              error={fieldErrors.name ? t(fieldErrors.name) : undefined}
+              autoComplete="name"/>
           )}
           {mode !== 'reset-password' && (
             <FormField id="email"
               label={mode === 'verify-email' ? t('resendEmail') : t('email')}
-              type="email" value={email} setValue={setEmail} autoComplete="email"/>
+              type="email" value={email}
+              setValue={value => updateField('email', value)}
+              error={fieldErrors.email ? t(fieldErrors.email) : undefined}
+              autoComplete="email"/>
           )}
           {(mode === 'sign-in' || mode === 'sign-up' || mode === 'reset-password') && (
             <FormField id="password"
               label={mode === 'reset-password' ? t('newPassword') : t('password')}
-              type="password" value={password} setValue={setPassword}
+              type="password" value={password}
+              setValue={value => updateField('password', value)}
+              error={fieldErrors.password ? t(fieldErrors.password) : undefined}
               autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'} showToggle/>
           )}
           {(mode === 'sign-up' || mode === 'reset-password') && (

@@ -64,6 +64,7 @@
     "noSocial": "Endast e-postadress och lösenord",
     "emailSent": "Bekräftelsemejlet har skickats. Kontrollera inkorgen.",
     "back": "Tillbaka",
-    "error": "Fel"
+    "error": "Fel",
+    "requiredField": "Fyll i fältet."
   }
 }

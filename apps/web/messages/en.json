@@ -64,6 +64,7 @@
     "noSocial": "Email and password only",
     "emailSent": "Check your inbox: a verification email has been sent.",
     "back": "Back",
-    "error": "Error"
+    "error": "Error",
+    "requiredField": "This field is required."
   }
 }

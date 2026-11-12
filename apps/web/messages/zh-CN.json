@@ -64,6 +64,7 @@
     "noSocial": "仅支持邮箱和密码",
     "emailSent": "验证邮件已发送，请检查收件箱。",
     "back": "返回",
-    "error": "错误"
+    "error": "错误",
+    "requiredField": "请填写此字段。"
   }
 }
