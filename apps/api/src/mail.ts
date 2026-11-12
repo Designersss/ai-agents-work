@@ -3,26 +3,26 @@ import nodemailer from 'nodemailer';
 export type MailLocale = 'ru' | 'en' | 'zh-CN' | 'ja' | 'sv-SE';
 type MailKind = 'verify' | 'reset';
 
-const copy: Record<MailLocale, Record<MailKind, { subject: string; introduction: string }>> = {
+const copy: Record<MailLocale, Record<MailKind, { subject: string; introduction: string; action: string }>> = {
   ru: {
-    verify: { subject: 'Vimla — подтвердите адрес почты', introduction: 'Чтобы подтвердить email для Vimla, откройте эту ссылку:' },
-    reset: { subject: 'Vimla — восстановление пароля', introduction: 'Для смены пароля Vimla откройте эту ссылку:' }
+    verify: { subject: 'Vimla — подтвердите адрес почты', introduction: 'Чтобы подтвердить email для Vimla, откройте эту ссылку:', action: 'Подтвердить email' },
+    reset: { subject: 'Vimla — восстановление пароля', introduction: 'Для смены пароля Vimla откройте эту ссылку:', action: 'Изменить пароль' }
   },
   en: {
-    verify: { subject: 'Vimla — verify your email', introduction: 'To verify your email for Vimla, open this link:' },
-    reset: { subject: 'Vimla — reset your password', introduction: 'To reset your Vimla password, open this link:' }
+    verify: { subject: 'Vimla — verify your email', introduction: 'To verify your email for Vimla, open this link:', action: 'Verify email' },
+    reset: { subject: 'Vimla — reset your password', introduction: 'To reset your Vimla password, open this link:', action: 'Reset password' }
   },
   'zh-CN': {
-    verify: { subject: 'Vimla — 验证电子邮箱', introduction: '请打开以下链接验证您的 Vimla 邮箱：' },
-    reset: { subject: 'Vimla — 重置密码', introduction: '请打开以下链接重置您的 Vimla 密码：' }
+    verify: { subject: 'Vimla — 验证电子邮箱', introduction: '请打开以下链接验证您的 Vimla 邮箱：', action: '验证邮箱' },
+    reset: { subject: 'Vimla — 重置密码', introduction: '请打开以下链接重置您的 Vimla 密码：', action: '重置密码' }
   },
   ja: {
-    verify: { subject: 'Vimla — メールアドレスの確認', introduction: 'Vimla のメールアドレスを確認するには、次のリンクを開いてください：' },
-    reset: { subject: 'Vimla — パスワードの再設定', introduction: 'Vimla のパスワードを再設定するには、次のリンクを開いてください：' }
+    verify: { subject: 'Vimla — メールアドレスの確認', introduction: 'Vimla のメールアドレスを確認するには、次のリンクを開いてください：', action: 'メールを確認' },
+    reset: { subject: 'Vimla — パスワードの再設定', introduction: 'Vimla のパスワードを再設定するには、次のリンクを開いてください：', action: 'パスワードを再設定' }
   },
   'sv-SE': {
-    verify: { subject: 'Vimla — bekräfta din e-postadress', introduction: 'Öppna följande länk för att bekräfta din e-postadress i Vimla:' },
-    reset: { subject: 'Vimla — återställ lösenord', introduction: 'Öppna följande länk för att återställa ditt Vimla-lösenord:' }
+    verify: { subject: 'Vimla — bekräfta din e-postadress', introduction: 'Öppna följande länk för att bekräfta din e-postadress i Vimla:', action: 'Bekräfta e-post' },
+    reset: { subject: 'Vimla — återställ lösenord', introduction: 'Öppna följande länk för att återställa ditt Vimla-lösenord:', action: 'Återställ lösenord' }
   }
 };
 
@@ -89,6 +89,7 @@ export async function sendTransactionalMail(args: {
   const escapedUrl = htmlEscape(url.toString());
   const escapedSubject = htmlEscape(conf.subject);
   const escapedIntro = htmlEscape(conf.introduction);
+  const escapedAction = htmlEscape(conf.action);
   const html = `<!doctype html>
 <html lang="${htmlEscape(args.locale)}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -97,7 +98,7 @@ export async function sendTransactionalMail(args: {
     <strong style="font-size:23px;letter-spacing:-.5px">Vimla</strong>
     <h1 style="font-size:20px;font-weight:600;line-height:1.3;margin:24px 0 12px">${escapedSubject}</h1>
     <p style="margin:0 0 22px;color:#555">${escapedIntro}</p>
-    <a href="${escapedUrl}" style="display:inline-block;background:#307cf6;color:white;text-decoration:none;border-radius:7px;padding:11px 18px;font-weight:600">Vimla</a>
+    <a href="${escapedUrl}" style="display:inline-block;background:#307cf6;color:white;text-decoration:none;border-radius:7px;padding:11px 18px;font-weight:600">${escapedAction}</a>
     <p style="margin:24px 0 8px;font-size:12px;color:#666;overflow-wrap:anywhere">${escapedUrl}</p>
   </div>
 </body></html>`;
