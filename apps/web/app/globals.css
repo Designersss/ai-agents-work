@@ -324,3 +324,62 @@ a:hover { text-decoration: underline; }
   border-color: var(--border);
   box-shadow: none;
 }
+
+
+/* Brand links remain identical in the public header and account flows. */
+.brand:hover { color: var(--foreground); text-decoration: none; opacity: .92; }
+
+/* Public landing: informative real anchors and account links, never dummy navigation. */
+.landing { display: flex; min-height: 100dvh; flex-direction: column; }
+.landing-header { border-bottom: 1px solid var(--border); }
+.landing-header-content {
+  display: flex;
+  width: min(100%, 1080px);
+  min-height: 68px;
+  align-items: center;
+  margin: 0 auto;
+  gap: 24px;
+  padding: 13px 24px;
+}
+.landing-header .brand { margin-right: auto; font-size: 21px; }
+.landing-nav { display: flex; align-items: center; gap: 21px; white-space: nowrap; }
+.landing-nav > a { color: var(--muted-foreground); font-size: 12.5px; }
+.landing-nav > a:hover { color: var(--foreground); }
+.landing-nav [data-slot="button"] { height: 33px; padding-inline: 12px; }
+.landing-main { width: min(100%, 960px); flex: 1; margin: 0 auto; padding: 0 24px 72px; }
+.landing-hero { max-width: 770px; padding: clamp(70px, 9vw, 145px) 0 100px; }
+.landing-eyebrow { margin: 0 0 18px; color: var(--primary); font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+.landing-hero h1 {
+  max-width: 750px;
+  margin: 0;
+  font-size: clamp(36px, 5.5vw, 64px);
+  font-weight: 600;
+  letter-spacing: -.055em;
+  line-height: 1.09;
+}
+.landing-lead { max-width: 590px; margin: 23px 0 0; color: var(--muted-foreground); font-size: clamp(15px, 2vw, 17px); line-height: 1.6; }
+.landing-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 30px; }
+.landing-actions [data-slot="button"] { height: 40px; padding-inline: 17px; }
+.landing-section { padding: 40px 0 64px; border-top: 1px solid var(--border); scroll-margin-top: 30px; }
+.landing-section-label { margin: 0 0 15px; color: var(--primary); font-size: 11.5px; font-weight: 600; }
+.landing-section h2 { margin: 0; font-size: clamp(24px, 3vw, 34px); font-weight: 600; letter-spacing: -.04em; }
+.landing-section > p:not(.landing-section-label) { max-width: 730px; margin: 15px 0 0; color: var(--muted-foreground); font-size: 14px; line-height: 1.7; }
+.landing-features { display: flex; flex-wrap: wrap; gap: 27px; margin-top: 29px; }
+.landing-features > span { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 500; }
+.landing-features svg { color: var(--primary); }
+.landing-footer { border-top: 1px solid var(--border); padding: 23px; color: var(--muted-foreground); text-align: center; font-size: 12px; }
+
+@media (max-width: 740px) {
+  .landing-header-content { flex-wrap: wrap; gap: 8px 14px; padding: 12px 16px; }
+  .landing-header .brand { margin-right: auto; font-size: 19px; }
+  .landing-nav { order: 3; width: 100%; justify-content: space-between; gap: 8px; padding-top: 9px; }
+  .landing-nav > a { font-size: 12px; }
+  .landing-nav [data-slot="button"] { height: 32px; padding-inline: 10px; }
+  .landing-main { padding: 0 19px 52px; }
+  .landing-hero { padding: 70px 0 73px; }
+  .landing-section { padding: 37px 0 55px; }
+}
+@media (max-width: 360px) {
+  .landing-header-content { padding-inline: 12px; }
+  .landing-nav { gap: 6px; }
+}
