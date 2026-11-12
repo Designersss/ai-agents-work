@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import { betterAuth } from 'better-auth';
 import { Pool } from 'pg';
-import { ensureEnvironment } from './config.js';
+import { ensureAuthEnvironment } from './config.js';
 import { getMailLocale, sendTransactionalMail } from './mail.js';
 
-ensureEnvironment();
+ensureAuthEnvironment();
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL!,

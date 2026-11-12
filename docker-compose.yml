@@ -15,17 +15,5 @@ services:
     volumes:
       - vimla_postgres:/var/lib/postgresql/data
 
-  # Local development only. Mailpit receives *real* verification SMTP messages,
-  # but deliberately does not deliver them to external mailboxes.
-  # Never use this service as the production transactional email provider.
-  mailpit:
-    image: axllent/mailpit:v1.27
-    profiles: ["local-mail"]
-    ports:
-      - "127.0.0.1:1025:1025"
-      - "127.0.0.1:8025:8025"
-    environment:
-      MP_MAX_MESSAGES: 1000
-
 volumes:
   vimla_postgres:
